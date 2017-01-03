@@ -13,14 +13,12 @@ result = even + odd #=> [0, 2, 4, 6, 8, 1, 3, 5, 7, 9]
 # 3. Дан целочисленный массив. Вывести номер первого из тех его элементов,
 # которые удовлетворяют двойному неравенству: A[0] < A[i] < A[-1]. Если таких элементов нет, то вывести [ ].
 
-index = array.detect.with_index { |el, ind| ind if el > array[0] && el < array[-1] }
-rasult = index ? index : []
+index = array.detect.with_index { |el, ind| ind if el > array[0] && el < array[-1] } || []
 
 #4. Дан целочисленный массив. Вывести номер последнего из тех его элементов,
 # которые удовлетворяют двойному неравенству: A[0] < A[i] < A[-1]. Если таких элементов нет, то вывести [ ].
 
-arr = array.map.with_index { |el, ind| ind if el > array[0] && el < array[-1] }.compact
-rasult = arr[-1] ? arr[-1] : []
+arr = array.map.with_index { |el, ind| ind if el > array[0] && el < array[-1] }.compact || []
 
 # 5. Дан целочисленный массив. Преобразовать его, прибавив к четным числам первый элемент. Первый и последний элементы массива не изменять.
 
@@ -172,7 +170,7 @@ result = indexes[-1] - indexes[0] - 1
 # 64 Дан целочисленный массив. Найти максимальное количество подряд идущих максимальных элементов.
 
 array = [3, 4, 9, 9, 9, 9, 2, 7, 9, 9, 5, 6, 9, 9, 9, 9, 9, 3, 7]
-def aaa array
+def count_of_max array
   a, res = 0, 1
   array.each do |el|
     if el == array.max
@@ -189,7 +187,7 @@ end
 # 68 Дан целочисленный массив. Проверить, чередуются ли в нем положительные и отрицательные числа.
 
 array = [3, -4, 9, -2, 7, -9, 5, -6, 9, -3, 7, 4]
-def aaa array
+def odd_even array
   a = true
   (0..array.size-2).step(2) do |ind|
     return a = false if array[ind] * array[ind+1] > 0
