@@ -311,13 +311,23 @@ module ArrayExtantion
     end
 
   # all?
+    # def self.reduce_all?(array)
+    #   if block_given?
+    #     !array.reduce([]) { |a, el| a << false if yield(el) }.include? false
+    #   else
+    #     !array.reduce([]) { |a, el| a << false if el != nil && el != false }.include? false
+    #   end
+    # end
+
+  # all?
     def self.reduce_all?(array)
       if block_given?
-        !array.reduce([]) { |a, el| a << false if yield(el) }.include? false
+        array.reduce(true) { |a, el| return false if !yield(el); a }
       else
-        !array.reduce([]) { |a, el| a << false if el != nil && el != false }.include? false
+        array.reduce(true) { |a, el| return false if el == nil || el == false; a }
       end
     end
+
 
   # any?
     def self.reduce_any?(array)
