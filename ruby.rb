@@ -356,7 +356,11 @@ ArrayExtantion::flatten(array)
   def merge(h1, h2)
     res = {}
     h1.each do |k, val|
-      res[k] = h2[k] ? val + h2[k] : val
+      if block_given?
+        res[k] = h2[k] ? yield(k, h1[k], h2[k]) : val
+      else
+        res[k] = h2[k] ? val + h2[k] : val
+      end
     end
     keys = h2.keys - res.keys
     keys.each do |k|
@@ -367,7 +371,7 @@ ArrayExtantion::flatten(array)
 
 h1 = { "a" => 100, "b" => 200 }
 h2 = { "b" => 254, "c" => 300 }
-=> {"a"=>100, "b"=>454, "c"=>300}
+#=> {"a"=>100, "b"=>454, "c"=>300}
 
 
 # группировка(дан массив имен-фамилий, написать алгоритм поиска однофамильцев)
@@ -376,3 +380,4 @@ array = ["Alexander Dmitrenko", "Alexander Katasonov", "Anastasia Sakhno", "Nick
 
 array.map! { |item| item.split(' ').reverse }
 array.each_with_object(Hash.new) { |item, a| a[item[0]] = array.select { |i| i[0] == item[0] } }
+
