@@ -8,8 +8,8 @@ array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 # even = array.map.with_index { |el, ind| el if ind%2 == 0 }.compact
 # odd = array.map.with_index { |el, ind| el if ind%2 != 0 }.compact
 
-even = array.select.with_index { |el, ind| el if ind.even? }
-odd = array.select.with_index { |el, ind| el if ind.odd? }
+even = array.select.with_index { |el, ind| ind.even? }
+odd = array.select.with_index { |el, ind| ind.odd? }
 
 result = even + odd #=> [0, 2, 4, 6, 8, 1, 3, 5, 7, 9]
 
@@ -31,17 +31,17 @@ result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? 
 
 # 6.  Дан целочисленный массив. Преобразовать его, прибавив к четным числам последний элемент. Первый и последний элементы массива не изменять.
 
-result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el%2 == 0 ? el + array[-1] : el)}
+result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el.even? ? el + array[-1] : el)}
 # => [3, 1, 11, 3, 13, 5, 15, 7, 17, 9]
 
 # 7. Дан целочисленный массив. Преобразовать его, прибавив к нечетным числам последний элемент. Первый и последний элементы массива не изменять.
 
-result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el%2 != 0 ? el + array[-1] : el)}
+result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el.odd? ? el + array[-1] : el)}
 # => [3, 10, 2, 12, 4, 14, 6, 16, 8, 9]
 
 # 8. Дан целочисленный массив. Преобразовать его, прибавив к нечетным числам первый элемент. Первый и последний элементы массива не изменять.
 
-result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el%2 != 0 ? el + array[0] : el)}
+result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el.odd? ? el + array[0] : el)}
 # => [3, 4, 2, 6, 4, 8, 6, 10, 8, 9]
 
 # 9. Дан целочисленный массив. Заменить все положительные элементы на значение минимального.
@@ -268,8 +268,8 @@ result = array.map { |el| el ** K }
 array = [1, 3, 5, 4, 5, 4, 6, 7, 5, 4, 6, 5, 2, 7]
 array.sort_by { |i| [i%2, i] } # Женя показал:)
 
-even = array.select { |el| el if el.even? }.sort
-odd = array.select { |el| el if el.odd? }.sort
+even = array.select { |el| el.even? }.sort
+odd = array.select { |el| el.odd? }.sort
 result = even + odd
 
 # обратный порядок
@@ -279,7 +279,7 @@ array.each_with_object([]) { |el, a| a.unshift(el) }
 # массив строк упорядочить по длине слов (группировка по длине слов)
 
 array = ['indexing starts at 0,', 'as in C', 'or', 'Java. A negative', 'index is assumed to be relative']
-array.sort { |x, y| x.length <=> y.length }.group_by{|i| i.length}
+array.sort { |x, y| x.length <=> y.length }.group_by{ |i| i.length }
 
 
 # Поиск в массиве: локальные максимумы
@@ -291,12 +291,12 @@ array.map.with_index { |el, ind| el if el > (array[ind-1] ? array[ind-1] : 0) &&
 module ArrayExtantion
   #map
     def self.reduce_map(array)
-      array.reduce([]){ |a, el| block_given? ? a << yield(el) : "#<Enumerator: #{array}:reduce_map>" }
+      array.reduce([]){ |a, el| block_given? ? a << yield(el) : array.to_enum(:reduce_map) }
     end
 
   # select
     def self.reduce_select(array)
-      array.reduce([]){ |a, el| block_given? ? (yield(el) ? a << el : a) : "#<Enumerator: #{array}:reduce_select>" }
+      array.reduce([]){ |a, el| block_given? ? (yield(el) ? a << el : a) : array.to_enum(:reduce_select) }
     end
 
   # count
@@ -352,7 +352,7 @@ module ArrayExtantion
 end
 
 ArrayExtantion::reduce_map(array)
-ArrayExtantion::rreduce_select(array)
+ArrayExtantion::reduce_select(array)
 ArrayExtantion::reduce_count(array)
 ArrayExtantion::reduce_all?(array)
 ArrayExtantion::reduce_any?(array)
@@ -388,6 +388,49 @@ h2 = { "b" => 254, "c" => 300 }
 
 array = ["Alexander Dmitrenko", "Alexander Katasonov", "Anastasia Sakhno", "Nickolay Katasonov", "Andrey Katasonov"]
 
+def mergg arrr
+  arrr.each_with_object({}) do | item, a|
+    name, fm = item.split(' ')
+    a[fm] ||=[]
+    a[fm] << name
+  end
+end
+
+mergg array
+
+
 array.map! { |item| item.split(' ').reverse }
-array.each_with_object(Hash.new) { |item, a| a[item[0]] = array.select { |i| i[0] == item[0] } }
+array.each_with_object({}) { |item, a| a[item[0]] = array.select { |i| i[0] == item[0] } }
+
+
+array.each_with_object({}) { |item, a| name, family = item.split(' '); a[family] ||=[]; a[family] << name }
+
+
+
+
+array = [4, 5, 7]
+
+array.max(2).sum
+array.sum - array.min
+array.sort; array[-1] + array[-2]
+a = array[0] + array[1]; b = array[1] + array[2]; a >= b ? a : b
+array.sort; array.shift; array.sum
+
+
+
+
+a, b, c = 4, 5, 7
+if a < b && a < c
+  b + c
+elsif b < a && b < c
+  a + c
+else
+  b + a
+end
+
+
+
+
+
+
 
