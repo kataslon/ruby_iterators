@@ -5,9 +5,8 @@
 
 array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-# even = array.select.with_index { |el, ind| el if ind.even? }
-# odd = array.select.with_index { |el, ind| el if ind.odd? }
-
+# even = array.select.with_index { |el, ind| ind.even? }
+# odd = array.select.with_index { |el, ind| ind.odd? }
 # result = even + odd #=> [0, 2, 4, 6, 8, 1, 3, 5, 7, 9]
 
 array.partiton.with_index { |el, ind| ind.even? }.flatten
@@ -30,17 +29,17 @@ result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? 
 
 # 6.  Дан целочисленный массив. Преобразовать его, прибавив к четным числам последний элемент. Первый и последний элементы массива не изменять.
 
-result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el%2 == 0 ? el + array[-1] : el)}
+result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el.even? ? el + array[-1] : el)}
 # => [3, 1, 11, 3, 13, 5, 15, 7, 17, 9]
 
 # 7. Дан целочисленный массив. Преобразовать его, прибавив к нечетным числам последний элемент. Первый и последний элементы массива не изменять.
 
-result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el%2 != 0 ? el + array[-1] : el)}
+result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el.odd? ? el + array[-1] : el)}
 # => [3, 10, 2, 12, 4, 14, 6, 16, 8, 9]
 
 # 8. Дан целочисленный массив. Преобразовать его, прибавив к нечетным числам первый элемент. Первый и последний элементы массива не изменять.
 
-result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el%2 != 0 ? el + array[0] : el)}
+result = array.map.with_index { |el, ind| ind == 0 || ind == array.length - 1 ? el : (el.odd? ? el + array[0] : el)}
 # => [3, 4, 2, 6, 4, 8, 6, 10, 8, 9]
 
 # 9. Дан целочисленный массив. Заменить все положительные элементы на значение минимального.
@@ -291,8 +290,8 @@ result = array.map { |el| el ** K }
 array = [1, 3, 5, 4, 5, 4, 6, 7, 5, 4, 6, 5, 2, 7]
 array.sort_by { |i| [i%2, i] } # Женя показал:)
 
-even = array.select { |el| el if el.even? }.sort
-odd = array.select { |el| el if el.odd? }.sort
+even = array.select { |el| el.even? }.sort
+odd = array.select { |el| el.odd? }.sort
 result = even + odd
 
 # => [2, 4, 4, 4, 6, 6, 1, 3, 5, 5, 5, 5, 7, 7]
@@ -307,7 +306,7 @@ array.each_with_object([]) { |el, a| a.unshift(el) }
 # массив строк упорядочить по длине слов (группировка по длине слов)
 
 array = ['indexing starts at 0,', 'as in C', 'or', 'Java. A negative', 'index is assumed to be relative']
-array.sort { |x, y| x.length <=> y.length }.group_by{|i| i.length}
+array.sort { |x, y| x.length <=> y.length }.group_by{ |i| i.length }
 
 # => {2=>["or"], 7=>["as in C"], 16=>["Java. A negative"], 21=>["indexing starts at 0,"], 31=>["index is assumed to be relative"]}
 
@@ -341,13 +340,23 @@ module ArrayExtantion
     end
 
   # all?
+    # def self.reduce_all?(array)
+    #   if block_given?
+    #     !array.reduce([]) { |a, el| a << false if yield(el) }.include? false
+    #   else
+    #     !array.reduce([]) { |a, el| a << false if el != nil && el != false }.include? false
+    #   end
+    # end
+
+  # all?
     def self.reduce_all?(array)
       if block_given?
-        !array.reduce([]) { |a, el| a << false if yield(el) }.include? false
+        array.reduce(true) { |a, el| return false if !yield(el); a }
       else
-        !array.reduce([]) { |a, el| a << false if el != nil && el != false }.include? false
+        array.reduce(true) { |a, el| return false if el == nil || el == false; a }
       end
     end
+
 
   # any?
     def self.reduce_any?(array)
@@ -372,7 +381,7 @@ module ArrayExtantion
 end
 
 ArrayExtantion::reduce_map(array)
-ArrayExtantion::rreduce_select(array)
+ArrayExtantion::reduce_select(array)
 ArrayExtantion::reduce_count(array)
 ArrayExtantion::reduce_all?(array)
 ArrayExtantion::reduce_any?(array)
@@ -401,7 +410,7 @@ ArrayExtantion::flatten(array)
 
 h1 = { "a" => 100, "b" => 200 }
 h2 = { "b" => 254, "c" => 300 }
-=> {"a"=>100, "b"=>454, "c"=>300}
+#=> {"a"=>100, "b"=>454, "c"=>300}
 
 
 # группировка(дан массив имен-фамилий, написать алгоритм поиска однофамильцев)
@@ -412,3 +421,15 @@ array = ["Alexander Dmitrenko", "Alexander Katasonov", "Anastasia Sakhno", "Nick
 # array.each_with_object(Hash.new) { |item, a| a[item[0]] = array.select { |i| i[0] == item[0] } }
 
 array.each_with_object({}) { |item, a| name, family = item.split(' '); a[family] ||=[]; a[family] << name }
+
+def find_homonym array
+  array.each_with_object({}) do |item, a|
+    name, family = item.split(' ')
+    a[family] ||=[]
+    a[family] << name
+  end
+end
+
+find_homonym array
+
+# => {"Dmitrenko"=>["Alexander"], "Katasonov"=>["Alexander", "Nickolay", "Andrey"], "Sakhno"=>["Anastasia"]}
