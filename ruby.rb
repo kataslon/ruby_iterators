@@ -5,13 +5,12 @@
 
 array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-# even = array.map.with_index { |el, ind| el if ind%2 == 0 }.compact
-# odd = array.map.with_index { |el, ind| el if ind%2 != 0 }.compact
+# even = array.select.with_index { |el, ind| el if ind.even? }
+# odd = array.select.with_index { |el, ind| el if ind.odd? }
 
-even = array.select.with_index { |el, ind| el if ind.even? }
-odd = array.select.with_index { |el, ind| el if ind.odd? }
+# result = even + odd #=> [0, 2, 4, 6, 8, 1, 3, 5, 7, 9]
 
-result = even + odd #=> [0, 2, 4, 6, 8, 1, 3, 5, 7, 9]
+array.partiton.with_index { |el, ind| ind.even? }.flatten
 
 # 3. Дан целочисленный массив. Вывести номер первого из тех его элементов,
 # которые удовлетворяют двойному неравенству: A[0] < A[i] < A[-1]. Если таких элементов нет, то вывести [ ].
@@ -70,22 +69,30 @@ result = array << array.shift
 
 # 14. Дан целочисленный массив. Осуществить циклический сдвиг элементов массива вправо на одну позицию.
 
-result = array.unshift(array.pop)
+# result = array.unshift(array.pop)
+# => [9, 3, 5, 6, -2, 5, -8, 9]
+result = array.rotate -1
 # => [9, 3, 5, 6, -2, 5, -8, 9]
 
 # 15. Дан целочисленный массив. Проверить, образуют ли элементы арифметическую прогрессию.
 # Если да, то вывести разность прогрессии, если нет - вывести nil.
 
 array = [1, 4, 7, 10, 13, 16]
-diffs = array.map.with_index { |el, ind| array[ind+1] - el if ind != array.length - 1 }.compact.uniq
-result = diffs.size == 1 ? diffs.first : nil
+# diffs = array.map.with_index { |el, ind| array[ind+1] - el if ind != array.length - 1 }.compact.uniq
+# result = diffs.size == 1 ? diffs.first : nil
+
+diff = array[1] - array[0]
+array[0...-1].each_index.any?{ |i| array[i] + diff != array[i+1] } ? nil : diff
 
 # 16. Дан целочисленный массив. Проверить, образуют ли элементы геометрическую прогрессию.
 # Если да, то вывести знаменатель прогрессии, если нет - вывести nil.
 
 array = [2, 4, 8, 16, 32, 64]
-diffs = array.map.with_index { |el, ind| array[ind+1] / el if ind != array.length - 1 }.compact.uniq
-result = diffs.size == 1 ? diffs.first : nil
+# diffs = array.map.with_index { |el, ind| array[ind+1] / el if ind != array.length - 1 }.compact.uniq
+# result = diffs.size == 1 ? diffs.first : nil
+
+diff = array[1] / array[0]
+array[0...-1].each_index.any?{ |i| array[i] * diff != array[i+1] } ? nil : diff
 
 #17. Дан целочисленный массив. Найти количество его локальных максимумов.
 
@@ -115,10 +122,12 @@ array = [2, 4, 5, 4, 3, 5, 6, 3, 2, 7]
 
 # 24 Дано вещественное число R и массив вещественных чисел. Найти элемент массива, который наименее близок к данному числу
 
-array = [2, 4, 5, 4, 3, 5, 6, 3, 2, 7]
-r = 4
-diff_arr = array.map { |el| (el - r).abs }
-result = array[diff_arr.index(diff_arr.max)]
+array = [2.787, 4.1, 5.567, 4.987, 3.12345, 5.456, 6.56798, 3.234, 2.234, 7.7878]
+r = 4.1234
+# diff_arr = array.map { |el| (el - r).abs }
+# result = array[diff_arr.index(diff_arr.max)]
+
+array.map { |el| [(r - el).abs, el] }.max[1]
 
 # 28 Дан целочисленный массив. Преобразовать его, вставив после каждого отрицательного элемента нулевой элемент.
 
@@ -133,6 +142,8 @@ array = [2, 4, 5, 4, 3, 5, 6, 3, 2, 7]
 result = array.map.with_index { |el, ind| [el, ind] }.sort.map { |i| i[1] }
 # => [0, 8, 4, 7, 1, 3, 2, 5, 6, 9]
 
+result = array.each_index.sort{ |a,b| arr[b] <=> arr[a] }
+
 # 36 Дан целочисленный массив. Найти индекс первого максимального элемента.
 
 array = [2, 4, 5, 7, 9, 5, 6, 9, 2, 7]
@@ -143,6 +154,8 @@ result = array.index(array.max)
 array = [2, 4, 5, 7, 9, 5, 6, 9, 2, 7]
 result = array.select { |i| i == array.max }.size
 
+result = array.count array.max
+
 # 44 Дан целочисленный массив. Найти максимальный нечетный элемент.
 
 array = [2, 4, 5, 7, 9, 5, 6, 9, 2, 7]
@@ -151,24 +164,31 @@ result = array.select { |i| i.odd? }.max
 # 48 Дан целочисленный массив и интервал a..b. Найти максимальный из элементов в этом интервале.
 
 array = [2, 4, 5, 7, 9, 5, 6, 9, 2, 7]
-array[a..b].max
+range = 2..6
+# array[a..b].max
+
+result = array.select { |el| range.include? el }.max
 
 # 52 Дан целочисленный массив. Найти количество элементов, расположенных после первого минимального.
 
 array = [3, 4, 5, 2, 7, 9, 5, 6, 9, 2, 7]
-result = array.slice((array.index(array.min)+1), array.size).size
+# result = array.slice((array.index(array.min)+1), array.size).size
 
+result = array.size - 1 - array.index(array.max)
 
 # 56 Дан целочисленный массив. Найти количество элементов, расположенных после последнего минимального.
 
-array = [3, 4, 5, 2, 7, 9, 5, 6, 9, 3, 7]
-result = array.size - 1 - array.map.with_index { |el, ind| ind if el == array.min }.compact.last
+array = [3, 4, 5, 2, 7, 9, 5, 2, 6, 9, 3, 7]
+# result = array.size - 1 - array.map.with_index { |el, ind| ind if el == array.min }.compact.last
+result = array.size - 1 - array.rindex(array.min)
 
 # 60 Дан целочисленный массив. Найти количество элементов, между первым и последним максимальным.
 
 array = [3, 4, 9, 2, 7, 9, 5, 6, 9, 3, 7]
-indexes = array.map.with_index { |el, ind| ind if el == array.max }.compact
+indexes = array.each_index.select { |ind| array[ind] == array.max }
 result = indexes[-1] - indexes[0] - 1
+
+result = array.rindex(array.max) - array.index(array.max) - 1
 
 # 64 Дан целочисленный массив. Найти максимальное количество подряд идущих максимальных элементов.
 
@@ -201,20 +221,23 @@ end
 # 72 Дан целочисленный массив. Удалить все элементы, встречающиеся более двух раз.
 
 array = [1, 3, 5, 4, 5, 4, 6, 7, 5, 4, 6, 5, 2, 7]
-result = array.map { |el| el if array.select { |i| i == el }.count <= 2 }.compact
+# result = array.map { |el| el if array.select { |i| i == el }.count <= 2 }.compact
+
+result = array.delete_if { |item| a.count(item)>2 }
 
 
 # 76 Дан целочисленный массив. Найти среднее арифметическое квадратов его элементов.
 
 array = [1, 3, 5, 4, 5, 4, 6, 7, 5, 4, 6, 5, 2, 7]
-result = array.map { |i| i*i }.inject(0) { |sum, n| sum + n } / array.size
+result = array.inject(0.0) { |sum, n| sum + n * n } / array.size
 
 
 # 80 Дан дипапазон a..b. Получить массив из чисел,
 # расположенных в этом диапазоне (исключая сами эти числа), в порядке их возрастания, а также размер этого массива.
 
-range = a+1...b
-result = range.each_with_object([]) { |el, a| a << el }.sort.size
+range = 1..18
+result = range.each_with_object([]) { |el, a| a << el }.sort
+size = result.size
 
 
 # 84 Дано натуральное число N. Найти результат следующего произведения 1*2*…*N.
@@ -225,7 +248,7 @@ result = range.each_with_object([]) { |el, a| a << el }.sort.size
 # 88 Дан целочисленный массив. Найти количество четных элементов.
 
 array = [1, 3, 5, 4, 5, 4, 6, 7, 5, 4, 6, 5, 2, 7]
-result = array.map { |el| el if el.even? }.compact.size
+result = array.select { |el| el.even? }.size
 
 
 # 92 Дан целочисленный массив и число К. Если существует элемент, больший К, то вывести true; в противном случае вывести false.
@@ -242,7 +265,7 @@ array.index(array.detect { |el| el > K })
 
 array = [1, 3, 5, 4, 5, 4, 6, 7, 5, 4, 6, 5, 2, 7]
 inds = 0...array.size - 1
-result = inds.map { |i| i if array[i] > array[i+1] }.compact
+result = inds.select { |i| array[i] > array[i+1] }
 size = result.size
 
 # 104 Дан целочисленный массив. Проверить, образует ли он упорядоченную последовательность.
@@ -272,31 +295,38 @@ even = array.select { |el| el if el.even? }.sort
 odd = array.select { |el| el if el.odd? }.sort
 result = even + odd
 
+# => [2, 4, 4, 4, 6, 6, 1, 3, 5, 5, 5, 5, 7, 7]
+
+
 # обратный порядок
 
+array = [1, 3, 5, 4, 5, 4, 6, 7, 5, 4, 6, 5, 2, 7]
 array.each_with_object([]) { |el, a| a.unshift(el) }
+# => [7, 2, 5, 6, 4, 5, 7, 6, 4, 5, 4, 5, 3, 1]
 
 # массив строк упорядочить по длине слов (группировка по длине слов)
 
 array = ['indexing starts at 0,', 'as in C', 'or', 'Java. A negative', 'index is assumed to be relative']
 array.sort { |x, y| x.length <=> y.length }.group_by{|i| i.length}
 
+# => {2=>["or"], 7=>["as in C"], 16=>["Java. A negative"], 21=>["indexing starts at 0,"], 31=>["index is assumed to be relative"]}
 
 # Поиск в массиве: локальные максимумы
 
 array = [1, 3, 5, 4, 5, 4, 6, 7, 5, 4, 6, 5, 2, 7]
 array.map.with_index { |el, ind| el if el > (array[ind-1] ? array[ind-1] : 0) && el > (array[ind+1] ? array[ind+1] : 0)}.compact
+# => [5, 5, 7, 6, 7]
 
 # написать map, select, detect, count, all?, any? через reduce (своя реализация)
 module ArrayExtantion
   #map
     def self.reduce_map(array)
-      array.reduce([]){ |a, el| block_given? ? a << yield(el) : "#<Enumerator: #{array}:reduce_map>" }
+      array.reduce([]){ |a, el| block_given? ? a << yield(el) : array.to_enum(:reduce_map) }
     end
 
   # select
     def self.reduce_select(array)
-      array.reduce([]){ |a, el| block_given? ? (yield(el) ? a << el : a) : "#<Enumerator: #{array}:reduce_select>" }
+      array.reduce([]){ |a, el| block_given? ? (yield(el) ? a << el : a) : array.to_enum(:reduce_select) }
     end
 
   # count
@@ -356,7 +386,11 @@ ArrayExtantion::flatten(array)
   def merge(h1, h2)
     res = {}
     h1.each do |k, val|
-      res[k] = h2[k] ? val + h2[k] : val
+      if block_given?
+        res[k] = h2[k] ? yield(k, h1[k], h2[k]) : val
+      else
+        res[k] = h2[k] ? val + h2[k] : val
+      end
     end
     keys = h2.keys - res.keys
     keys.each do |k|
@@ -374,5 +408,7 @@ h2 = { "b" => 254, "c" => 300 }
 
 array = ["Alexander Dmitrenko", "Alexander Katasonov", "Anastasia Sakhno", "Nickolay Katasonov", "Andrey Katasonov"]
 
-array.map! { |item| item.split(' ').reverse }
-array.each_with_object(Hash.new) { |item, a| a[item[0]] = array.select { |i| i[0] == item[0] } }
+# array.map! { |item| item.split(' ').reverse }
+# array.each_with_object(Hash.new) { |item, a| a[item[0]] = array.select { |i| i[0] == item[0] } }
+
+array.each_with_object({}) { |item, a| name, family = item.split(' '); a[family] ||=[]; a[family] << name }
