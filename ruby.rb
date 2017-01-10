@@ -113,6 +113,27 @@ local_max = array.map.with_index { |el, ind| el if el > (array[ind-1] ? array[in
 array = [2, 4, 5, 4, 3, 5, 6, 3, 2, 7]
 local_max = array.map.with_index { |el, ind| el if el < (array[ind-1] ? array[ind-1] : 0) && el < (array[ind+1] ? array[ind+1] : 0)}.compact.min
 
+# 21. Дан целочисленный массив. Определить количество участков, на которых его элементы монотонно возрастают.
+
+array = [2, 4, 5, 4, 3, 5, 6, 3, 2, 7]
+def count_incr array
+  count = 0
+  trigger = false
+  array.each_with_index do |el, ind|
+    return count if ind == (array.size - 1)
+    if el < array[ind + 1]
+      count += 1 if !trigger
+      trigger = true
+    else
+      trigger = false
+    end
+  end
+  count
+end
+
+count_incr array
+
+
 # 24 Дано вещественное число R и массив вещественных чисел. Найти элемент массива, который наименее близок к данному числу
 
 array = [2.787, 4.1, 5.567, 4.987, 3.12345, 5.456, 6.56798, 3.234, 2.234, 7.7878]
